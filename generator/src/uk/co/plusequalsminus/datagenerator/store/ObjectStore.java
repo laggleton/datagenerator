@@ -1,6 +1,5 @@
 package uk.co.plusequalsminus.datagenerator.store;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -73,7 +72,7 @@ public class ObjectStore {
 		String[] splitName = getObjectType().getName().split("\\.");
 		
 		
-		String filename = sdf.format(gc.getTime()) + "-" + splitName[splitName.length - 1] + ".txt";
+		String filename = "output/" + sdf.format(gc.getTime()) + "-" + splitName[splitName.length - 1] + ".txt";
 		
 		
 		File file = null;

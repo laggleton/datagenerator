@@ -9,7 +9,7 @@ import uk.co.plusequalsminus.datagenerator.utilities.Ignorable;
  * 
  * @author Lawrence Aggleton
  * 
- * POJO for Trade
+ * Simple Object for Trade
  *
  */
 
@@ -59,6 +59,7 @@ public class Trade extends GeneratableObject {
 	public Integer getSize() {
 		return size;
 	}
+	
 	public void setSize(Integer size) {
 		if (checkWithinAllowableRange("size", size)) {
 			this.size = size;
@@ -73,6 +74,7 @@ public class Trade extends GeneratableObject {
 	public Double getPrice() {
 		return price;
 	}
+	
 	public void setPrice(Double price) {
 		if (checkWithinAllowableRange("price", price)) {
 			this.price = price;

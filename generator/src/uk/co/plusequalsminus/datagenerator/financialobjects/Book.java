@@ -1,5 +1,11 @@
 package uk.co.plusequalsminus.datagenerator.financialobjects;
 
+/**
+ * 
+ * A S for Books within a hierarchy
+ * @author Lawrence Aggleton
+ *
+ */
 public class Book extends GeneratableObject {
 	private String bookName;
 	private String level1;

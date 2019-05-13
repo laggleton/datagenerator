@@ -3,12 +3,7 @@
  */
 package uk.co.plusequalsminus.datagenerator.generator;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-
-import org.json.JSONArray;
 
 import uk.co.plusequalsminus.datagenerator.financialobjects.Trade;
 import uk.co.plusequalsminus.datagenerator.store.ObjectStore;
@@ -37,27 +32,20 @@ public class DataGenerator {
 
 	}
 	
-	public void printFiles() {
-	//	ArrayList allStores = ObjectStore.getInstance();
-		
-		
-		
-	}
-	
-	public static void generateObjects() {
-		initialiseStringLibrary();
-		
-		int generateObjectCount = 100;
-		for (int i = 0; i < generateObjectCount; i++) {
-			Trade t = new Trade(StringGenerator.generateAlphaNumericString(4,4));
-			t.populateRandomly();
-		}
-				
+	public static void printFiles() {
 		StoreOfStores sos = StoreOfStores.getInstance();
 		for (ObjectStore os : sos.getAllStores()) {
 			os.writeObjectsAsSeparatedValues();
 		}
+	}
+	
+	public static void generateObjects(int generateObjectCount) {
+		initialiseStringLibrary();
 		
+		for (int i = 0; i < generateObjectCount; i++) {
+			Trade t = new Trade(StringGenerator.generateAlphaNumericString(4,4));
+			t.populateRandomly();
+		}
 	
 	}
 	

@@ -17,14 +17,23 @@ import uk.co.plusequalsminus.utilities.IdentityService;
 import uk.co.plusequalsminus.utilities.StringGenerator;
 import uk.co.plusequalsminus.utilities.StringLibrary;
 
+/**
+ * Abstract class to allow automated generation of objects and random population of data
+ * GeneratableObjects can have referential integrity to other GeneratableObjects by use of
+ * the @ForeignKey annotation
+ * Fields can be ignored/not populated/reported by using the @Ignorable annotation
+ * 
+ * @author Lawrence Aggleton
+ *
+ */
 public abstract class GeneratableObject {
 	
+	protected static final Logger LOGGER = Logger.getLogger( GeneratableObject.class.getName() );
 	private Random r = new Random();
 	protected String primaryKey = "";
+	
 	public String getPrimaryKey() { return primaryKey; }
 	public void setPrimaryKey(String p) { this.primaryKey = p; }
-	
-	protected static final Logger LOGGER = Logger.getLogger( GeneratableObject.class.getName() );
 	
 	public boolean checkWithinAllowableRange(String f, Double d) {
 		Double max = null;
@@ -105,8 +114,7 @@ public abstract class GeneratableObject {
 		}
 		return null;
 	}
-	
-	
+		
 	protected Object getFieldValue(Field f) {
 		try {
 			return f.get(this);
@@ -136,16 +144,32 @@ public abstract class GeneratableObject {
 	    return null;
 	}
 
+	/**
+	 * This class will randomly populate the fields in a GeneratableObject extension
+	 * This will only apply to fields with a 'set<FieldName>()' method
+	 * This will not apply to any fields that require multiple parameters to set
+	 * This does not affect the 'primaryKey' field which is set on construction
+	 * 
+	 * The fields will be populated as follows:
+	 * 1. If field is a String:
+	 * 	a. Look up if field has a list of possible options via the StringLibrary
+	 * 	b. Populate a random alphanumeric string
+	 * 2. If field is a Double or an Integer:
+	 * 	a. Lookup if min/max boundaries are set
+	 * 	b. Generate a random value either within these boundaries or without
+	 * 3. If field is a Boolean, populate random
+	 * 4. If field is a Currency, populate with a random Currency
+	 */
 	public void populateRandomly() {
 		for (Method method : this.getClass().getMethods()) {
 	        if (method.getName().startsWith("set")) {
 	        	String fieldName = method.getName().substring(3).toLowerCase();
 	            if (method.getParameterCount() > 1) {
-	            	LOGGER.info(method.getName() + " has more than one paramter and cannot be populated randomly " + method.toString());
+	            	LOGGER.info(method.getName() + " has more than one parameter and cannot be populated randomly " + method.toString());
 	            }
 	            else {
 	            	Parameter p = method.getParameters()[0];
-	            	Class c = p.getType();
+	            	Class<?> c = p.getType();
 		            if (c.equals(String.class)) {     
 		            	StringLibrary sl = StringLibrary.getInstance();
 		            	String rando = sl.getRandom(fieldName);
@@ -197,6 +221,11 @@ public abstract class GeneratableObject {
 		checkReferentialIntegrity();
 	}
 		
+	/**
+	 * Looks through all fields in a GeneratableObject to see if any have been annotated as @ForeignKey
+	 * If so, looks to check if a version of this type already exists in the store
+	 * If not, generates a random instance of the object
+	 */
 	protected void checkReferentialIntegrity() {
 		Field[] fieldList = this.getClass().getDeclaredFields();
 		
@@ -221,7 +250,7 @@ public abstract class GeneratableObject {
 						GeneratableObject go = (GeneratableObject) con.newInstance();
 						go.setPrimaryKey(pk);
 						go.populateRandomly();
-						os.registerObject(pk, go);
+						//os.registerObject(pk, go);
 					}
 					catch (Exception e) {
 						LOGGER.warning("No simple constructor for class " + c.getName());

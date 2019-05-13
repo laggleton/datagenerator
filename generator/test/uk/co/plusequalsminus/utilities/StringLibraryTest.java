@@ -12,7 +12,7 @@ class StringLibraryTest {
 		ArrayList<String> nameList = new ArrayList<String>();
 		nameList.add("Institution");
 		nameList.add("Trader");
-		StringLibrary sl = StringLibrary.init(nameList);
+		StringLibrary.init(nameList);
 	}
 	
 	@Test

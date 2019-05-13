@@ -1,15 +1,18 @@
 package uk.co.plusequalsminus.datagenerator.generator;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Test;
 
 class DataGeneratorTest {
 
 	@Test
 	void testGenerateObjects() {
-		DataGenerator.generateObjects();
-		
+		int numberOfObjects = 100;
+		DataGenerator.generateObjects(numberOfObjects);
+	}
+	
+	@Test
+	void printResults() {
+		DataGenerator.printFiles();
 	}
 	
 	

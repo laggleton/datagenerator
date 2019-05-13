@@ -81,7 +81,7 @@ public class StringLibrary {
 		if (null != al) {
 			return al.get(r.nextInt(al.size()));
 		}
-		LOGGER.info("No names stored for field " + field);
+		//LOGGER.info("No names stored for field " + field);
 		return null;
 	}
 	
