@@ -1,9 +1,9 @@
 package uk.co.plusequalsminus.datagenerator.financialobjects;
 
-import java.lang.reflect.Field;
 import java.util.Currency;
 
 import uk.co.plusequalsminus.datagenerator.utilities.ForeignKey;
+import uk.co.plusequalsminus.datagenerator.utilities.Ignorable;
 
 /**
  * 
@@ -28,7 +28,9 @@ public class Trade extends GeneratableObject {
 	@ForeignKey(type = Institution.class)
 	private String counterparty;
 	
+	@Ignorable
 	protected static final Integer MAX_SIZE_VALUE = new Integer("1000000000");
+	@Ignorable
 	protected static final Integer MIN_SIZE_VALUE = new Integer("0");
 	
 	public Trade(String primaryKey) {

@@ -1,19 +1,14 @@
 package uk.co.plusequalsminus.datagenerator.financialobjects;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
 import java.util.Currency;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
-
-import org.json.JSONObject;
 
 import uk.co.plusequalsminus.datagenerator.store.ObjectStore;
 import uk.co.plusequalsminus.datagenerator.store.StoreOfStores;

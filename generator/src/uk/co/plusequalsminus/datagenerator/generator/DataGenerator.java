@@ -47,24 +47,15 @@ public class DataGenerator {
 	public static void generateObjects() {
 		initialiseStringLibrary();
 		
-		ArrayList<Method> methodList = new ArrayList<Method>(Arrays.asList(Trade.class.getDeclaredMethods()));
-		ArrayList<Method> setterList = new ArrayList<Method>();
-		Iterator<Method> iter = methodList.iterator();
-		while (iter.hasNext()) {
-			Method m = iter.next();
-			if (!m.getName().startsWith("get")) { setterList.add(m); }
+		int generateObjectCount = 100;
+		for (int i = 0; i < generateObjectCount; i++) {
+			Trade t = new Trade(StringGenerator.generateAlphaNumericString(4,4));
+			t.populateRandomly();
 		}
-		
-		iter = setterList.iterator();
-		
-		Trade t = new Trade(StringGenerator.generateAlphaNumericString(4,4));
-		t.populateRandomly();
 				
 		StoreOfStores sos = StoreOfStores.getInstance();
 		for (ObjectStore os : sos.getAllStores()) {
-			System.out.println(os.getObjectType().getName());
-			JSONArray ja = os.getObjectsAsJSON();
-			System.out.println(ja.toString());
+			os.writeObjectsAsSeparatedValues();
 		}
 		
 	
