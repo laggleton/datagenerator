@@ -272,6 +272,29 @@ public abstract class GeneratableObject {
 		}
 	}
 	
+	public Method getSetMethodFromField(String s) {
+		for (Method m : this.getClass().getDeclaredMethods()) {
+			String methodName = m.getName().toLowerCase();
+			if (methodName.startsWith("set") && methodName.endsWith(s.toLowerCase())) {
+				return m;
+			}
+		}
+		LOGGER.warning("No setter method found for field " + s);
+		return null;
+	}
+	
+	public Class<?> getFieldType(String s) {
+		for (Field f : this.getClass().getDeclaredFields()) {
+			if (f.getName().toLowerCase().contentEquals(s.toLowerCase())) {
+				return f.getClass();
+			}
+		}
+		LOGGER.warning("No field found for name " + s);
+		return null;
+	}
+	
+
+	
 	private void populateRandom(Method m, String s) {
 		try {
 			m.invoke(this, s);

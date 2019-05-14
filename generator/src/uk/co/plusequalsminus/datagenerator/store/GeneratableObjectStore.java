@@ -1,14 +1,19 @@
 package uk.co.plusequalsminus.datagenerator.store;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InvalidClassException;
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Currency;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -22,6 +27,8 @@ import uk.co.plusequalsminus.datagenerator.financialobjects.GeneratableObject;
 /**
  * Stores GeneratableObjects in a HashMap by primaryKey
  * Allows store to be returned as JSON or printed as separated values
+ * Store can be initialised from a file
+ * 
  * @author Lawrence Aggleton
  *
  */
@@ -69,6 +76,61 @@ public class GeneratableObjectStore {
 	
 	public Class<?> getObjectType() {
 		return objectType;
+	}
+	
+	/**
+	 * Loads and populates a GeneratableObject store from a flat file
+	 * Requires a header line
+	 * Uses Pilcrow character ("¶") as delimeter
+	 * Expected filename: resources/objectlibraries/<class-name>.lib
+	 * 
+	 */
+	public void initialiseStoreFromFlatFile() {
+		String filename = "resources/objectlibararies/";
+		String[] splitName = getObjectType().getName().split("\\.");
+		filename += splitName[splitName.length - 1];
+		filename += ".lib";
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(filename));
+		    String line = reader.readLine();
+		    String[] headers = line.split("¶");
+		    
+		    while ((line = reader.readLine()) != null) {
+		    	String[] object = line.split("¶");
+		    	Constructor<?> con = getObjectType().getConstructor();
+				GeneratableObject go = (GeneratableObject) con.newInstance();
+		    	for (int i = 0; i < headers.length; i++) {
+		    		String fieldValue = object[i];
+		    		String fieldName = headers[i].toLowerCase();
+		    		Method m = go.getSetMethodFromField(fieldName);
+		    		Class<?> fieldType = go.getFieldType(fieldName);
+		    		if (fieldType.equals(Double.class)) {
+		    			m.invoke(go,  new Double(fieldValue));
+		    		}
+		    		else if (fieldType.equals(Integer.class)) {
+		    			m.invoke(go,  new Integer(fieldValue));
+		    		}
+		    		else if (fieldType.equals(String.class)) {
+		    			m.invoke(go,  fieldValue);
+		    		}
+		    		else if (fieldType.equals(Boolean.class)) {
+		    			m.invoke(go,  new Boolean(fieldValue));
+		    		}
+		    		else if (fieldType.equals(Currency.class)) {
+		    			m.invoke(go,  Currency.getInstance(fieldValue));
+		    		}
+		    		else {
+		    			LOGGER.warning("Could not find right fieldType for " + fieldName + " - received " + fieldType + " - fieldValue is " + fieldValue);
+		    		}
+		    	}
+		    }
+		    reader.close();
+		}
+		catch (Exception e) {
+		    LOGGER.warning("Exception occurred trying to read " + filename);
+		    e.printStackTrace();
+		}
+		
 	}
 	
 	public void writeObjectsAsSeparatedValues() {
