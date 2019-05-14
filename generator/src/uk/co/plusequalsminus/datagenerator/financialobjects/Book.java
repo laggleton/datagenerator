@@ -2,7 +2,7 @@ package uk.co.plusequalsminus.datagenerator.financialobjects;
 
 /**
  * 
- * A S for Books within a hierarchy
+ * A GeneratableObject for Books within a hierarchy
  * @author Lawrence Aggleton
  *
  */

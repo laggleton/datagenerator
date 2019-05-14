@@ -2,15 +2,22 @@ package uk.co.plusequalsminus.datagenerator.store;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.logging.Logger;
 
+import uk.co.plusequalsminus.datagenerator.financialobjects.GeneratableObject;
+
+/**
+ *
+ * A Singleton class allowing access to GeneratableObjectStores
+ * Allows only one store per class type
+ * @author Lawrence Aggleton
+ * 
+ */
 public class StoreOfStores {
 	private static StoreOfStores instance;
-	protected static final Logger LOGGER = Logger.getLogger( StoreOfStores.class.getName() );
-	private HashMap<Class<?>, ObjectStore> stores;
+	private HashMap<Class<?>, GeneratableObjectStore> stores;
 	
 	private StoreOfStores() {
-		stores = new HashMap<Class<?>,ObjectStore>();
+		stores = new HashMap<Class<?>,GeneratableObjectStore>();
 	}
 	
 	public static StoreOfStores getInstance() {
@@ -20,27 +27,22 @@ public class StoreOfStores {
 		return instance;
 	}
 	
-	public void registerStore(Class<?> c, ObjectStore s) {
-		stores.put(c,s);
-	}
-	
-	public ObjectStore getStore(Class<?> c) {
+	/**
+	 * Gets a GeneratableObjectStore for a given class type
+	 * Checks if store already exists, if not creates it
+	 * @param Class type of store c
+	 * @return Store
+	 */
+	public GeneratableObjectStore getStore(Class<?> c) throws Exception {
 		if (stores.containsKey(c)) {
 			return stores.get(c);
 		}
-		ObjectStore os = new ObjectStore(c);
-		stores.put(c,  os);
+		GeneratableObjectStore os = new GeneratableObjectStore(c);
+		stores.put(c, os);
 		return os;
 	}
 	
-	public boolean checkStore(Class<?> c) {
-		if (stores.containsKey(c)) {
-			return true;
-		}
-		return false;
-	}
-	
-	public Collection<ObjectStore> getAllStores() {
+	public Collection<GeneratableObjectStore> getAllStores() {
 		return stores.values();
 	}
 

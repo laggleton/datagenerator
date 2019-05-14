@@ -3,6 +3,7 @@ package uk.co.plusequalsminus.datagenerator.store;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InvalidClassException;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -15,16 +16,25 @@ import java.util.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import uk.co.plusequalsminus.datagenerator.annotations.Ignorable;
 import uk.co.plusequalsminus.datagenerator.financialobjects.GeneratableObject;
-import uk.co.plusequalsminus.datagenerator.utilities.Ignorable;
 
-public class ObjectStore {
-	private HashMap<String, Object> store;
+/**
+ * Stores GeneratableObjects in a HashMap by primaryKey
+ * Allows store to be returned as JSON or printed as separated values
+ * @author Lawrence Aggleton
+ *
+ */
+public class GeneratableObjectStore {
+	private HashMap<String, GeneratableObject> store;
 	private Class<?> objectType;
-	protected static final Logger LOGGER = Logger.getLogger( ObjectStore.class.getName() );
+	protected static final Logger LOGGER = Logger.getLogger(GeneratableObjectStore.class.getName());
 	
-	public ObjectStore(Class<?> objectTypes) {
-		store = new HashMap<String, Object>();
+	public GeneratableObjectStore(Class<?> objectTypes) throws InvalidClassException {
+		if (!GeneratableObject.class.isAssignableFrom(objectTypes)) {
+			throw new InvalidClassException("Cannot create a GeneratableObjectStore from a non GeneratableObject class: " + objectTypes.getName());
+		}
+		store = new HashMap<String, GeneratableObject>();
 		objectType = objectTypes;
 	}
 	
@@ -44,8 +54,8 @@ public class ObjectStore {
 		}
 	}
 	
-	public ArrayList<Object> getAllObjects() {
-		return new ArrayList<Object>(store.values());
+	public ArrayList<GeneratableObject> getAllObjects() {
+		return new ArrayList<GeneratableObject>(store.values());
 	}
 	
 	public JSONArray getObjectsAsJSON() {
@@ -65,19 +75,25 @@ public class ObjectStore {
 		writeObjectsAsSeparatedValues(',');
 	}
 	
+	/**
+	 * Method will writer a header line (including primaryKey) and then iterate through all 
+	 * fields in a GeneratableObject to complete the line
+	 * Fields can be ignored if annotated by @Ignorable  
+	 * Method then works through all objects in store and populated remainder of file
+	 * Filename format is output/<time-of-generation>-<objectType>.txt
+	 * @param Delimiter - c
+	 */
 	public void writeObjectsAsSeparatedValues(char c) {
-		
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss");
-		Calendar gc = new GregorianCalendar();
-		String[] splitName = getObjectType().getName().split("\\.");
-		
-		
-		String filename = "output/" + sdf.format(gc.getTime()) + "-" + splitName[splitName.length - 1] + ".txt";
-		
-		
+
 		File file = null;
 		FileWriter fileWriter = null;
 		PrintWriter writer = null;
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss");
+		Calendar gc = new GregorianCalendar();
+		String[] splitName = getObjectType().getName().split("\\.");
+		String filename = "output/" + sdf.format(gc.getTime()) + "-" + splitName[splitName.length - 1] + ".txt";
+		
 		try {
 			file = new File(filename);
 			fileWriter = new FileWriter(file);
@@ -86,18 +102,21 @@ public class ObjectStore {
 				file.createNewFile();
 			}
 			writer = new PrintWriter(fileWriter);
-			writer.printf("%s" + c, "primaryKey");
+			
 			Field[] allFieldNames = getObjectType().getDeclaredFields();
 			ArrayList<Field> fieldNames = new ArrayList<Field>();
 			
+			// Create list of non @Ignorable field names
 			for (Field f : allFieldNames) {
-				if (!f.isAnnotationPresent(Ignorable.class)) {
+				if (!f.isAnnotationPresent(Ignorable.class)) { 
 					fieldNames.add(f);
 				}
 			}
 			
+			// Print header line
+			writer.printf("%s" + c, "primaryKey");
 			for (int i = 0; i < fieldNames.size(); i++) {
-				if (i+1 == fieldNames.size()) {
+				if (i+1 == fieldNames.size()) { //last line
 					writer.printf("%s" + "%n", fieldNames.get(i).getName());
 				}
 				else {
@@ -105,6 +124,7 @@ public class ObjectStore {
 				}
 			}
 			
+			// Print Objects
 			for (Object o : getAllObjects()) {
 				GeneratableObject go = (GeneratableObject) o;
 				Object fieldValue;
@@ -115,13 +135,12 @@ public class ObjectStore {
 						f.setAccessible(true);
 						fieldValue = f.get(go);
 						if (null == fieldValue) { fieldValue = ""; }
-						if (i+1 == fieldNames.size()) {
+						if (i+1 == fieldNames.size()) { //last line
 							writer.printf("%s" + "%n", fieldValue.toString());
 						}
 						else {
 							writer.printf("%s" + c, fieldValue.toString());
 						}
-						
 					}
 				}
 				catch (Exception e) {
@@ -130,7 +149,6 @@ public class ObjectStore {
 					e.printStackTrace();
 				}
 			}
-			
 		}
 		catch (IOException ioe) {
 			LOGGER.warning("IO Exception on file " + filename);
@@ -154,7 +172,6 @@ public class ObjectStore {
 				}
 			}
 		}
-
 	}
 
 }

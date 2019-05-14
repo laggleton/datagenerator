@@ -1,4 +1,4 @@
-package uk.co.plusequalsminus.datagenerator.utilities;
+package uk.co.plusequalsminus.datagenerator.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

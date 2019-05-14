@@ -10,9 +10,9 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import uk.co.plusequalsminus.datagenerator.store.ObjectStore;
+import uk.co.plusequalsminus.datagenerator.annotations.ForeignKey;
+import uk.co.plusequalsminus.datagenerator.store.GeneratableObjectStore;
 import uk.co.plusequalsminus.datagenerator.store.StoreOfStores;
-import uk.co.plusequalsminus.datagenerator.utilities.ForeignKey;
 import uk.co.plusequalsminus.utilities.IdentityService;
 import uk.co.plusequalsminus.utilities.StringGenerator;
 import uk.co.plusequalsminus.utilities.StringLibrary;
@@ -217,7 +217,13 @@ public abstract class GeneratableObject {
 	            }
 	        }
 	    }
-		StoreOfStores.getInstance().getStore(this.getClass()).registerObject(getPrimaryKey(), this);
+		try {
+			StoreOfStores.getInstance().getStore(this.getClass()).registerObject(getPrimaryKey(), this);
+		}
+		catch (Exception e) {
+			LOGGER.warning(e.getMessage());
+			e.printStackTrace();
+		}
 		checkReferentialIntegrity();
 	}
 		
@@ -231,10 +237,17 @@ public abstract class GeneratableObject {
 		
 		for(Field f : fieldList) {
 			if (f.isAnnotationPresent(ForeignKey.class)) { 
-				//LOGGER.info("Field " + f.getName() + " is a Foreign Key to " + f.getAnnotation(ForeignKey.class).type().getName());
 				Class<?> c =  f.getAnnotation(ForeignKey.class).type();
+				GeneratableObjectStore os;
+				try {
+					os = StoreOfStores.getInstance().getStore(c);
+				}
+				catch (Exception e) {
+					LOGGER.warning(e.getMessage());
+					e.printStackTrace();
+					continue;
+				}
 				
-				ObjectStore os = StoreOfStores.getInstance().getStore(c);
 				f.setAccessible(true);
 				String pk = null;
 				try {
@@ -250,7 +263,6 @@ public abstract class GeneratableObject {
 						GeneratableObject go = (GeneratableObject) con.newInstance();
 						go.setPrimaryKey(pk);
 						go.populateRandomly();
-						//os.registerObject(pk, go);
 					}
 					catch (Exception e) {
 						LOGGER.warning("No simple constructor for class " + c.getName());

@@ -6,7 +6,7 @@ package uk.co.plusequalsminus.datagenerator.generator;
 import java.util.ArrayList;
 
 import uk.co.plusequalsminus.datagenerator.financialobjects.Trade;
-import uk.co.plusequalsminus.datagenerator.store.ObjectStore;
+import uk.co.plusequalsminus.datagenerator.store.GeneratableObjectStore;
 import uk.co.plusequalsminus.datagenerator.store.StoreOfStores;
 import uk.co.plusequalsminus.utilities.StringGenerator;
 import uk.co.plusequalsminus.utilities.StringLibrary;
@@ -34,7 +34,7 @@ public class DataGenerator {
 	
 	public static void printFiles() {
 		StoreOfStores sos = StoreOfStores.getInstance();
-		for (ObjectStore os : sos.getAllStores()) {
+		for (GeneratableObjectStore os : sos.getAllStores()) {
 			os.writeObjectsAsSeparatedValues();
 		}
 	}

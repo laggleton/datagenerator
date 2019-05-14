@@ -2,15 +2,14 @@ package uk.co.plusequalsminus.datagenerator.financialobjects;
 
 import java.util.Currency;
 
-import uk.co.plusequalsminus.datagenerator.utilities.ForeignKey;
-import uk.co.plusequalsminus.datagenerator.utilities.Ignorable;
+import uk.co.plusequalsminus.datagenerator.annotations.ForeignKey;
+import uk.co.plusequalsminus.datagenerator.annotations.Ignorable;
 
 /**
  * 
+ * A GeneratableObject for Trades
  * @author Lawrence Aggleton
  * 
- * Simple Object for Trade
- *
  */
 
 public class Trade extends GeneratableObject {
