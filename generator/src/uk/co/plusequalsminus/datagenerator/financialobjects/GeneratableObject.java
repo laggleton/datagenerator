@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Currency;
+import java.util.Date;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -170,50 +171,61 @@ public abstract class GeneratableObject {
 	            else {
 	            	Parameter p = method.getParameters()[0];
 	            	Class<?> c = p.getType();
-		            if (c.equals(String.class)) {     
-		            	StringLibrary sl = StringLibrary.getInstance();
-		            	String rando = sl.getRandom(fieldName);
-		            	if (null == rando) { rando = StringGenerator.generateAlphaNumericString(); }
-		            	populateRandom(method, rando);
-		            }
-		            else if (c.equals(Double.class)) {
-		            	Double min = (Double) getMinFrom(method);
-		            	Double max = (Double) getMaxFrom(method);
-		            	Double rand = r.nextDouble();
-		            	if (null != min && null != max) { rand *= (max-min); rand += min; }
-		            	populateRandom(method, rand);
-		            }
-		            else if (c.equals(Integer.class)) {
-		            	
-		            	if (fieldName.equals("identity")) {
-		            		populateRandom(method, IdentityService.getInstance().getIdentity(primaryKey));
-		            	}
-		            	else {           	
-			            	Integer min = (Integer) getMinFrom(method);
-			            	Integer max = (Integer) getMaxFrom(method);
+	            	try {				
+			            if (c.equals(String.class)) {     
+			            	StringLibrary sl = StringLibrary.getInstance();
+			            	String rando = sl.getRandom(fieldName);
+			            	if (null == rando) { rando = StringGenerator.generateAlphaNumericString(); }
+			            	method.invoke(this, rando);
+			            }
+			            else if (c.equals(Double.class)) {
+			            	Double min = (Double) getMinFrom(method);
+			            	Double max = (Double) getMaxFrom(method);
+			            	Double rand = r.nextDouble();
+			            	if (null != min && null != max) { rand *= (max-min); rand += min; }
+			            	method.invoke(this, rand);
+			            }
+			            else if (c.equals(Integer.class)) {
 			            	
-			            	if (null != min && null != max) { populateRandom(method, r.nextInt(max-min)); }
-			            	else { populateRandom(method, r.nextInt()); };
-		            	}
-		            }
-		            else if (c.equals(Boolean.class)) {
-		            	populateRandom(method, r.nextBoolean());
-		            }
-		            else if (c.equals(Currency.class)) {
-		            	Set<Currency> cSet = Currency.getAvailableCurrencies();
-		            	int i = r.nextInt(cSet.size());
-		            	int count = 0;
-		            	
-		            	for (Currency ccy : cSet) {
-		            		if (i == count) {
-		            			populateRandom(method, ccy);
-		            		}
-		            		count++;
-		            	}
-		            }
-		            else {
-		            	LOGGER.info("Method " + method.getName() + " has unknown input type " + c.getName());
-		            }
+			            	if (fieldName.equals("identity")) {
+			            		method.invoke(this, IdentityService.getInstance().getIdentity(primaryKey));
+			            	}
+			            	else {           	
+				            	Integer min = (Integer) getMinFrom(method);
+				            	Integer max = (Integer) getMaxFrom(method);
+				            	
+				            	if (null != min && null != max) { method.invoke(this, r.nextInt(max-min)); }
+				            	else { method.invoke(this, r.nextInt()); }
+			            	}
+			            }
+			            else if (c.equals(Boolean.class)) {
+			            	method.invoke(this, r.nextBoolean());
+			            }
+			            else if (c.equals(Date.class)) {
+			            	method.invoke(this, new Date());
+			            }
+			            else if (c.equals(Currency.class)) {
+			            	Set<Currency> cSet = Currency.getAvailableCurrencies();
+			            	int i = r.nextInt(cSet.size());
+			            	int count = 0;
+			            	
+			            	for (Currency ccy : cSet) {
+			            		if (i == count) {
+			            			method.invoke(this, ccy);
+			            		}
+			            		count++;
+			            	}
+			            }
+			            else {
+			            	LOGGER.info("Method " + method.getName() + " has unknown input type " + c.getName());
+			            }	
+	            	}
+	            	catch (IllegalAccessException e) {
+	                 	System.out.println("Could not determine method: " + method.getName());
+	                }
+	                catch (InvocationTargetException e) {
+	                	System.out.println("Could not determine method: " + method.getName());
+	                }
 	            }
 	        }
 	    }
@@ -292,66 +304,5 @@ public abstract class GeneratableObject {
 		LOGGER.warning("No field found for name " + s);
 		return null;
 	}
-	
 
-	
-	private void populateRandom(Method m, String s) {
-		try {
-			m.invoke(this, s);
-		}
-		 catch (IllegalAccessException e) {
-         	System.out.println("Could not determine method: " + m.getName());
-         }
-         catch (InvocationTargetException e) {
-         	System.out.println("Could not determine method: " + m.getName());
-         }
-	}
-	
-	private void populateRandom(Method m, Double d) {
-		try {
-			 m.invoke(this, d);
-		}
-		 catch (IllegalAccessException e) {
-         	System.out.println("Could not determine method: " + m.getName());
-         }
-         catch (InvocationTargetException e) {
-         	System.out.println("Could not determine method: " + m.getName());
-         }
-	}
-	
-	private void populateRandom(Method m, Integer i) {
-		try {
-			m.invoke(this, i);
-		}
-		 catch (IllegalAccessException e) {
-         	System.out.println("Could not determine method: " + m.getName());
-         }
-         catch (InvocationTargetException e) {
-         	System.out.println("Could not determine method: " + m.getName());
-         }
-	}
-	
-	private void populateRandom(Method m, Boolean b) {
-		try {
-			m.invoke(this, b);
-		}
-		 catch (IllegalAccessException e) {
-         	System.out.println("Could not determine method: " + m.getName());
-         }
-         catch (InvocationTargetException e) {
-         	System.out.println("Could not determine method: " + m.getName());
-         }
-	}
-	
-	private void populateRandom(Method m, Currency c) {
-		try {
-			m.invoke(this, c);
-		}
-		 catch (IllegalAccessException e) {
-         	System.out.println("Could not determine method: " + m.getName());
-         }
-         catch (InvocationTargetException e) {
-         	System.out.println("Could not determine method: " + m.getName());
-         }
-	}
 }

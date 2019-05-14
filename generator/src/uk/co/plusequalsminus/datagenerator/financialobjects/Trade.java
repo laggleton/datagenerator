@@ -1,5 +1,6 @@
 package uk.co.plusequalsminus.datagenerator.financialobjects;
 
+import java.util.ArrayList;
 import java.util.Currency;
 
 import uk.co.plusequalsminus.datagenerator.annotations.ForeignKey;
@@ -31,6 +32,8 @@ public class Trade extends GeneratableObject {
 	protected static final Integer MAX_SIZE_VALUE = new Integer("1000000000");
 	@Ignorable
 	protected static final Integer MIN_SIZE_VALUE = new Integer("0");
+	
+	private ArrayList<Cashflow> cashflows;
 	
 	public Trade(String primaryKey) {
 		this.primaryKey = primaryKey;
@@ -78,6 +81,10 @@ public class Trade extends GeneratableObject {
 		if (checkWithinAllowableRange("price", price)) {
 			this.price = price;
 		}
+	}
+	
+	public void generateCashFlows() {
+		
 	}
 	
 	
